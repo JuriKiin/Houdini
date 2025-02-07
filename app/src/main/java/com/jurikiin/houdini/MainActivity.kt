@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
-import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.navigation.NavigationState
 import com.jurikiin.houdini.ui.components.FindPrinters
 import com.jurikiin.houdini.ui.components.Header
@@ -78,7 +77,9 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
                                     }
                                     when (homeState) {
                                         is MainViewModelState.Printers -> {
-                                            PrinterList((homeState as MainViewModelState.Printers).printers) {
+                                            val printers = (homeState as MainViewModelState.Printers).printers
+                                            Text("Printers Found: ${printers.size}")
+                                            PrinterList(printers) {
                                                 navigationState = NavigationState.Action(it)
                                             }
                                         }
@@ -90,24 +91,21 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
 
                             is NavigationState.Action -> {
                                 val printer = (navigationState as NavigationState.Action).printer
-                                mainViewModel.setCurrentPrinter(printer)
+                                mainViewModel.connectToPrinter(printer)
+
                                 var input by remember { mutableStateOf("") }
 
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     PrinterCard(printer) {
-                                        navigationState = NavigationState.Home
-                                        mainViewModel.setCurrentPrinter(null)
+
                                     }
-                                    Header("Actions")
                                     TextField(
                                         modifier = Modifier.fillMaxWidth(),
                                         value = input,
                                         onValueChange = { input = it },
                                         label = { Text("Print Text") })
-                                    HoudiniButton(onClick = { mainViewModel.write(input)}) { Text("Print") }
-                                    HoudiniButton(onClick = { mainViewModel.feed(1)}) { Text("Feed") }
-                                    HoudiniButton(onClick = { mainViewModel.cut(CutType.FULL)}) { Text("Full Cut") }
-                                    HoudiniButton(onClick = { mainViewModel.cut(CutType.PARTIAL)}) { Text("Partial Cut") }
+                                    Header("Actions")
+                                    HoudiniButton(onClick = { mainViewModel.printText(printer, input)}) { Text("Print") }
                                 }
                             }
                         }

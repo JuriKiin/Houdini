@@ -10,7 +10,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jurikiin.houdini.communication.Houdini
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
-import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.model.Printer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,8 +24,6 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
     private val _loadingState = MutableLiveData(false)
     val loadingState: LiveData<Boolean> = _loadingState
 
-    private var currentPrinter: Printer? = null
-
     fun initialize() {
         houdini.initialize()
     }
@@ -36,41 +33,23 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val result = houdini.findPrinters()
-                _state.postValue(MainViewModelState.Printers(result))
+                houdini.findPrinters().also {
+                    _state.postValue(MainViewModelState.Printers(it))
+                }
             }.await()
 
             _loadingState.postValue(false)
         }
     }
 
-    fun setCurrentPrinter(printer: Printer?) {
-        currentPrinter = printer
+    fun connectToPrinter(printer: Printer) = CoroutineScope(Dispatchers.IO).launch {
+        printer.connect()
     }
 
-    // Printer Actions
-    fun write(text: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.write(it, text)
-            }
-        }
-    }
+    fun disconnectFromPrinter(printer: Printer) = printer.disconnect()
 
-    fun feed(lines: Int = 1) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.feed(it, lines)
-            }
-        }
-    }
-
-    fun cut(cutType: CutType = CutType.FULL) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.cut(it, cutType)
-            }
-        }
+    fun printText(printer: Printer, text: String) = CoroutineScope(Dispatchers.IO).launch {
+        printer.printText(text)
     }
 
     companion object {

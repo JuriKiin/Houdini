@@ -26,6 +26,7 @@ fun PrinterCard(printer: Printer, onClick: (Printer) -> Unit) =
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier.fillMaxWidth()
+            .padding(8.dp)
             .clickable { onClick(printer) }
     ) {
         Column {

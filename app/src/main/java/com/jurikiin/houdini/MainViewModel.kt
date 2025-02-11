@@ -1,6 +1,7 @@
 package com.jurikiin.houdini
 
 import android.bluetooth.BluetoothManager
+import android.graphics.Bitmap
 import android.hardware.usb.UsbManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,6 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jurikiin.houdini.communication.Houdini
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
+import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.model.Printer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +52,18 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 
     fun printText(printer: Printer, text: String) = CoroutineScope(Dispatchers.IO).launch {
         printer.printText(text)
+    }
+
+    fun feed(printer: Printer, lines: Int) = CoroutineScope(Dispatchers.IO).launch {
+        printer.feed(lines)
+    }
+
+    fun cut(printer: Printer, type: CutType) = CoroutineScope(Dispatchers.IO).launch {
+        printer.cut(type)
+    }
+
+    fun printImage(printer: Printer, image: Bitmap) = CoroutineScope(Dispatchers.IO).launch {
+        printer.printImage(image)
     }
 
     companion object {

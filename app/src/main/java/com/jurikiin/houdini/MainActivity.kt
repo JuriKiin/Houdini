@@ -2,6 +2,7 @@ package com.jurikiin.houdini
 
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.hardware.usb.UsbManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,13 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
+import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.navigation.NavigationState
 import com.jurikiin.houdini.ui.components.FindPrinters
 import com.jurikiin.houdini.ui.components.Header
 import com.jurikiin.houdini.ui.components.HoudiniButton
+import com.jurikiin.houdini.ui.components.HoudiniDoubleButton
 import com.jurikiin.houdini.ui.components.PrinterCard
 import com.jurikiin.houdini.ui.components.PrinterList
+import com.jurikiin.houdini.ui.model.ButtonState
 import com.jurikiin.houdini.ui.theme.HoudiniTheme
 
 class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
@@ -81,6 +86,7 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
                                             Text("Printers Found: ${printers.size}")
                                             PrinterList(printers) {
                                                 navigationState = NavigationState.Action(it)
+                                                mainViewModel.connectToPrinter(it)
                                             }
                                         }
 
@@ -91,21 +97,31 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
 
                             is NavigationState.Action -> {
                                 val printer = (navigationState as NavigationState.Action).printer
-                                mainViewModel.connectToPrinter(printer)
 
                                 var input by remember { mutableStateOf("") }
 
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     PrinterCard(printer) {
-
+                                        mainViewModel.disconnectFromPrinter(printer)
+                                        navigationState = NavigationState.Home
                                     }
                                     TextField(
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier.fillMaxWidth().padding(8.dp),
                                         value = input,
                                         onValueChange = { input = it },
                                         label = { Text("Print Text") })
                                     Header("Actions")
-                                    HoudiniButton(onClick = { mainViewModel.printText(printer, input)}) { Text("Print") }
+                                    HoudiniButton(onClick = { mainViewModel.printText(printer, input) }, "Print")
+                                    HoudiniButton(onClick = { mainViewModel.feed(printer, 1) }, "Line Feed")
+                                    HoudiniButton(onClick = { mainViewModel.feed(printer, 10) }, "Full Feed")
+                                    HoudiniDoubleButton(
+                                        button1 = ButtonState("Partial Cut") { mainViewModel.cut(printer, CutType.PARTIAL) },
+                                        button2 = ButtonState("Full Cut") { mainViewModel.cut(printer, CutType.FULL) }
+                                    )
+                                    HoudiniButton(onClick = {
+                                        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.tophat)
+                                        mainViewModel.printImage(printer, bitmap)
+                                    }, "Print Image")
                                 }
                             }
                         }

@@ -1,13 +1,15 @@
 package com.jurikiin.houdini.model
 
+import com.jurikiin.houdini.actions.Actions
+
 enum class CutType {
-    FULL,
-    PARTIAL;
+    PARTIAL,
+    FULL;
 
     fun toCommand(): ByteArray {
         return when (this) {
-            FULL -> "GS V 0".toByteArray()
-            PARTIAL -> "GS V 1".toByteArray()
+            PARTIAL -> Actions.CUT_BASE + byteArrayOf(0x00)
+            FULL -> Actions.CUT_BASE + byteArrayOf(0x01)
         }
     }
 }

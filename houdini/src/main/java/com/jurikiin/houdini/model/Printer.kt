@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
+import android.graphics.Bitmap
 import com.jurikiin.houdini.actions.Actions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -67,6 +68,65 @@ class Printer(
 
                 socket?.outputStream?.flush()
 
+            } catch (e: Throwable) {
+                println(e)
+            }
+        }
+    }
+
+    suspend fun feed(lines: Int = 1) {
+        withContext(Dispatchers.IO) {
+            try {
+                socket?.outputStream?.write(Actions.feed(lines))
+                socket?.outputStream?.flush()
+            } catch (e: Throwable) {
+                println(e)
+            }
+        }
+    }
+
+    suspend fun cut(type: CutType) {
+        withContext(Dispatchers.IO) {
+            try {
+                socket?.outputStream?.write(type.toCommand())
+                socket?.outputStream?.flush()
+            } catch (e: Throwable) {
+                println(e)
+            }
+        }
+    }
+
+    suspend fun printImage(image: Bitmap) {
+        withContext(Dispatchers.IO) {
+            try {
+                val width = image.width
+                val height = image.height
+                val bytesPerRow = (width + 7) / 8
+                val imageData = ByteArray(bytesPerRow * height)
+
+                for (y in 0 until height) {
+                    for (x in 0 until width) {
+                        val pixel = image.getPixel(x, y)
+                        val luminance = (0.299 * (pixel shr 16 and 0xFF) + 0.587 * (pixel shr 8 and 0xFF) + 0.114 * (pixel and 0xFF)).toInt()
+                        if (luminance < 128) {
+                            imageData[y * bytesPerRow + (x / 8)] = (imageData[y * bytesPerRow + (x / 8)].toInt() or (0x80 shr (x % 8))).toByte()
+                        }
+                    }
+                }
+
+                val command = ByteArray(8 + imageData.size)
+                command[0] = 0x1D
+                command[1] = 0x76
+                command[2] = 0x30
+                command[3] = 0x00
+                command[4] = (bytesPerRow and 0xFF).toByte()
+                command[5] = ((bytesPerRow shr 8) and 0xFF).toByte()
+                command[6] = (height and 0xFF).toByte()
+                command[7] = ((height shr 8) and 0xFF).toByte()
+                System.arraycopy(imageData, 0, command, 8, imageData.size)
+
+                socket?.outputStream?.write(command)
+                socket?.outputStream?.flush()
             } catch (e: Throwable) {
                 println(e)
             }

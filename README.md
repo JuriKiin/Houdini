@@ -1,4 +1,4 @@
-# Houdini Printer App
+# Houdini
 
 ## Overview
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Houdini Printer App is an Android application designed to manage and interact with various printer models. It supports multiple connection types, including Bluetooth and USB, and provides functionalities such as printing text, feeding paper, cutting paper, and printing images.
+The Houdini Printer App is an Android application designed to manage and interact with various printer models. It supports multiple connection types, including Bluetooth and USB, and provides functionality such as printing text, feeding paper, cutting paper, and printing images.
 
 ## Features
 
@@ -16,9 +16,9 @@ The Houdini Printer App is an Android application designed to manage and interac
 
 ## Usage
 
-1. **Discover Printers**: Use the "Search for Printers" button to find available printers.
-2. **Select Printer**: Choose a printer from the list to view its details.
-3. **Print Operations**: Perform various print operations such as printing text, feeding paper, cutting paper, and printing images from the printer details screen.
+- **Discover Printers**: Use the "Search for Printers" button to find available printers.
+- **Select Printer**: Choose a printer from the list to view its details.
+- **Print Operations**: Perform various print operations such as printing text, feeding paper, cutting paper, and printing images from the printer details screen.
 
 ## Dependencies
 

@@ -1,6 +1,7 @@
 package com.jurikiin.houdini
 
 import android.bluetooth.BluetoothManager
+import android.graphics.Bitmap
 import android.hardware.usb.UsbManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.jurikiin.houdini.actions.ImageRasterizer
 import com.jurikiin.houdini.communication.Houdini
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
 import com.jurikiin.houdini.model.CutType
@@ -25,8 +27,6 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
     private val _loadingState = MutableLiveData(false)
     val loadingState: LiveData<Boolean> = _loadingState
 
-    private var currentPrinter: Printer? = null
-
     fun initialize() {
         houdini.initialize()
     }
@@ -36,41 +36,35 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 
         CoroutineScope(Dispatchers.IO).launch {
             async {
-                val result = houdini.findPrinters()
-                _state.postValue(MainViewModelState.Printers(result))
+                houdini.findPrinters().also {
+                    _state.postValue(MainViewModelState.PrintersFound(it))
+                }
             }.await()
 
             _loadingState.postValue(false)
         }
     }
 
-    fun setCurrentPrinter(printer: Printer?) {
-        currentPrinter = printer
+    fun connectToPrinter(printer: Printer) = CoroutineScope(Dispatchers.IO).launch {
+        printer.connect()
     }
 
-    // Printer Actions
-    fun write(text: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.write(it, text)
-            }
-        }
+    fun disconnectFromPrinter(printer: Printer) = printer.disconnect()
+
+    fun printText(printer: Printer, text: String) = CoroutineScope(Dispatchers.IO).launch {
+        printer.printText(text)
     }
 
-    fun feed(lines: Int = 1) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.feed(it, lines)
-            }
-        }
+    fun feed(printer: Printer, lines: Int) = CoroutineScope(Dispatchers.IO).launch {
+        printer.feed(lines)
     }
 
-    fun cut(cutType: CutType = CutType.FULL) {
-        CoroutineScope(Dispatchers.IO).launch {
-            currentPrinter?.let {
-                houdini.cut(it, cutType)
-            }
-        }
+    fun cut(printer: Printer, type: CutType) = CoroutineScope(Dispatchers.IO).launch {
+        printer.cut(type)
+    }
+
+    fun printImage(printer: Printer, image: Bitmap) = CoroutineScope(Dispatchers.IO).launch {
+        printer.printImage(image)
     }
 
     companion object {
@@ -80,7 +74,12 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
             usbManager: UsbManager
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val houdini = Houdini(houdiniCommunicationHandler, bluetoothManager, usbManager)
+                val houdini = Houdini(
+                    houdiniCommunicationHandler,
+                    bluetoothManager,
+                    usbManager,
+                    ImageRasterizer()
+                )
                 MainViewModel(houdini)
             }
         }
@@ -88,6 +87,6 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 }
 
 sealed class MainViewModelState {
-    data class Printers(val printers: List<Printer>) : MainViewModelState()
+    data class PrintersFound(val printers: List<Printer>) : MainViewModelState()
     data object Empty : MainViewModelState()
 }

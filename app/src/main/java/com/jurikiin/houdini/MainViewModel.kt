@@ -37,7 +37,7 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             async {
                 houdini.findPrinters().also {
-                    _state.postValue(MainViewModelState.Printers(it))
+                    _state.postValue(MainViewModelState.PrintersFound(it))
                 }
             }.await()
 
@@ -87,6 +87,6 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 }
 
 sealed class MainViewModelState {
-    data class Printers(val printers: List<Printer>) : MainViewModelState()
+    data class PrintersFound(val printers: List<Printer>) : MainViewModelState()
     data object Empty : MainViewModelState()
 }

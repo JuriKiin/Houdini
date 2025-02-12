@@ -10,17 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.jurikiin.houdini.ui.theme.PrimaryBackground
+import com.jurikiin.houdini.ui.theme.PrimaryText
 
 @Composable
 fun HoudiniButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) = Button(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(8.dp)
-            .heightIn(max = 48.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF30A8FF)),
+            .heightIn(max = 48.dp)
+            .fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryText),
         onClick = onClick
 ) {
     content()
@@ -28,6 +31,7 @@ fun HoudiniButton(
 
 @Composable
 fun HoudiniButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     title: String
-) = HoudiniButton(onClick = { onClick() }) { Text(title) }
+) = HoudiniButton(modifier, onClick = { onClick() }) { Text(title, color = PrimaryBackground) }

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.jurikiin.houdini.actions.ImageRasterizer
 import com.jurikiin.houdini.communication.Houdini
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
 import com.jurikiin.houdini.model.CutType
@@ -73,7 +74,12 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
             usbManager: UsbManager
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val houdini = Houdini(houdiniCommunicationHandler, bluetoothManager, usbManager)
+                val houdini = Houdini(
+                    houdiniCommunicationHandler,
+                    bluetoothManager,
+                    usbManager,
+                    ImageRasterizer()
+                )
                 MainViewModel(houdini)
             }
         }

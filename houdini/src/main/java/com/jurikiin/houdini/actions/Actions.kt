@@ -13,20 +13,17 @@ object Actions {
     val FEED_LINE = byteArrayOf(0x0A)
 
     /**
+     * ESC d - Print and feed n lines
+     */
+    val FEED_LINES = byteArrayOf(0x1B, 0x64)
+
+    /**
      * GS V - Cuts the paper
      */
     val CUT_BASE = byteArrayOf(0x1D, 0x56)
 
-
-    @OptIn(ExperimentalStdlibApi::class)
-    fun feed(lines: Int): ByteArray {
-        var bytes = byteArrayOf()
-
-        repeat(lines) {
-            bytes = bytes.plus(FEED_LINE)
-        }
-
-        println(bytes.toHexString(HexFormat.UpperCase))
-        return bytes
-    }
+    /**
+     * GS L - Print graphics data to the print buffer
+     */
+    val PRINT_IMAGE = byteArrayOf(0x1D, 0x28, 0x4C, 0x02, 0x00, 0x30, 0x00)
 }

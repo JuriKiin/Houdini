@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import com.jurikiin.houdini.actions.ImageRasterizer
 import com.jurikiin.houdini.model.ConnectionType
 import com.jurikiin.houdini.model.Printer
 import java.util.UUID
@@ -13,9 +14,9 @@ import java.util.UUID
 class Houdini(
     private val explorer: HoudiniCommunicationHandler,
     private val bluetoothManager: BluetoothManager,
-    private val usbManager: UsbManager
+    private val usbManager: UsbManager,
+    private val imageRasterizer: ImageRasterizer
 ) {
-
     private companion object {
         val SPP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
     }
@@ -56,6 +57,7 @@ class Houdini(
                 it.key,
                 it.value.deviceName,
                 ConnectionType.USB,
+                imageRasterizer,
                 null
             )
         }
@@ -69,6 +71,7 @@ class Houdini(
                     printer.alias.toString(),
                     printer.address,
                     ConnectionType.BLUETOOTH,
+                    imageRasterizer,
                     bluetoothManager
                 )
             }

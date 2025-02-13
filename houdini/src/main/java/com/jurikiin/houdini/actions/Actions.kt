@@ -25,5 +25,10 @@ object Actions {
     /**
      * GS L - Print graphics data to the print buffer
      */
-    val PRINT_IMAGE = byteArrayOf(0x1D, 0x28, 0x4C, 0x02, 0x00, 0x30, 0x00)
+    val PRINT_IMAGE = byteArrayOf(0x1D, 0x76, 0x30, 0x00)
+
+    /**
+     * GS L 0 0 - Set the left margin to 0
+     */
+    val LEFT_MARGIN = byteArrayOf(0x1D, 0x4C, 0x00, 0x00)
 }

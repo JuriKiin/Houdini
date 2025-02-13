@@ -14,6 +14,7 @@ import com.jurikiin.houdini.communication.Houdini
 import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
 import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.model.Printer
+import com.jurikiin.houdini.model.PrinterConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -50,6 +51,10 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
     }
 
     fun disconnectFromPrinter(printer: Printer) = printer.disconnect()
+
+    fun setPaperSize(printer: Printer, configuration: PrinterConfiguration) {
+        printer.setPaperSize(configuration)
+    }
 
     fun printText(printer: Printer, text: String) = CoroutineScope(Dispatchers.IO).launch {
         printer.printText(text)

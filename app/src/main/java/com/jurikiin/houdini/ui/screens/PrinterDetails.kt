@@ -23,6 +23,8 @@ import com.jurikiin.houdini.MainViewModel
 import com.jurikiin.houdini.R
 import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.model.Printer
+import com.jurikiin.houdini.model.PrinterConfiguration
+import com.jurikiin.houdini.ui.components.Header
 import com.jurikiin.houdini.ui.components.HoudiniButton
 import com.jurikiin.houdini.ui.components.HoudiniDoubleButton
 import com.jurikiin.houdini.ui.model.ButtonState
@@ -62,6 +64,12 @@ fun PrinterDetails(
                 value = input,
                 onValueChange = { input = it },
                 label = { Text("Write something here") })
+
+            Header(title = "Select your paper size")
+            HoudiniDoubleButton(
+                button1 = ButtonState("57mm") { viewModel.setPaperSize(printer, PrinterConfiguration.MM_57) },
+                button2 = ButtonState("80mm") { viewModel.setPaperSize(printer, PrinterConfiguration.MM_80) }
+            )
 
             HoudiniButton(onClick = { viewModel.printText(printer, input) }, title = "Write Text")
             HoudiniButton(onClick = { viewModel.feed(printer, 1) }, title = "Line Feed")

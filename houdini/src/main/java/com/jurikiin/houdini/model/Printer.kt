@@ -17,6 +17,7 @@ class Printer(
     val name: String,
     val address: String,
     val connectionType: ConnectionType,
+    private val configuration: PrinterConfiguration,
     private val imageRasterizer: ImageRasterizer,
     private val bluetoothManager: BluetoothManager?
 ) {
@@ -26,6 +27,8 @@ class Printer(
 
     private var socket: BluetoothSocket? = null
     private var device: BluetoothDevice? = null
+
+    private var printerConfiguration = configuration
 
     suspend fun connect() {
         withContext(Dispatchers.IO) {
@@ -62,6 +65,8 @@ class Printer(
         socket = null
     }
 
+    fun setPaperSize(configuration: PrinterConfiguration) { printerConfiguration = configuration }
+
     suspend fun cut(type: CutType) {
         withContext(Dispatchers.IO) {
             try {
@@ -88,9 +93,12 @@ class Printer(
     suspend fun printImage(image: Bitmap) {
         withContext(Dispatchers.IO) {
             try {
-                val rasterizedImage = imageRasterizer.rasterize(image, PrinterConfiguration.DEFAULT)
-                socket?.outputStream?.write(Actions.PRINT_IMAGE)
+                val rasterizedImage = imageRasterizer.rasterize(image, configuration)
                 socket?.outputStream?.write(rasterizedImage)
+
+                socket?.outputStream?.write(Actions.FEED_LINES)
+                socket?.outputStream?.write(byteArrayOf(0x05))
+
                 socket?.outputStream?.flush()
             } catch (e: Throwable) {
                 println(e)
@@ -105,7 +113,6 @@ class Printer(
                 socket?.outputStream?.write(Actions.FEED_LINE)
 
                 socket?.outputStream?.flush()
-
             } catch (e: Throwable) {
                 println(e)
             }

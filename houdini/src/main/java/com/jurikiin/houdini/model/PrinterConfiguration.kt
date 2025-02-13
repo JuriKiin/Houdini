@@ -14,7 +14,8 @@ data class PrinterConfiguration(
     val paperWidthInMM: Int
 ) {
     companion object {
-        val DEFAULT = PrinterConfiguration(203, 80)
+        val MM_80 = PrinterConfiguration(203, 80)
+        val MM_57 = PrinterConfiguration(203, 57)
     }
 
     fun toWidthInPixels() = (paperWidthInMM * dpi / 25.4).toInt()

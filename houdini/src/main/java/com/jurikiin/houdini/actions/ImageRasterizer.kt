@@ -5,48 +5,45 @@ import com.jurikiin.houdini.model.PrinterConfiguration
 
 class ImageRasterizer {
     fun rasterize(image: Bitmap, printerConfiguration: PrinterConfiguration): ByteArray {
-        try {
-            val scaledImage = scaleImageToWidth(image, printerConfiguration.toWidthInPixels())
+        val maxWidth = printerConfiguration.toWidthInPixels()
+        val scaledImage = scaleImageToWidth(image, maxWidth)
 
-            val bytesPerRow = (image.width + 7) / 8
-            val imageData = convertImageToMonochrome(scaledImage, bytesPerRow)
+        val bytesPerRow = (scaledImage.width + 7) / 8
+        val imageData = convertToMonochrome(scaledImage, scaledImage.width, scaledImage.height, bytesPerRow)
 
-            val command = ByteArray(8 + imageData.size)
+        val commandSize = Actions.LEFT_MARGIN.size + Actions.PRINT_IMAGE.size + 4 + imageData.size
+        val command = ByteArray(commandSize)
+        System.arraycopy(Actions.LEFT_MARGIN, 0, command, 0, Actions.LEFT_MARGIN.size)
+        System.arraycopy(Actions.PRINT_IMAGE, 0, command, Actions.LEFT_MARGIN.size, Actions.PRINT_IMAGE.size)
 
-            command[0] = 0x1D
-            command[1] = 0x76
-            command[2] = 0x30
-            command[3] = 0x00
-            command[4] = (bytesPerRow and 0xFF).toByte()
-            command[5] = ((bytesPerRow shr 8) and 0xFF).toByte()
-            command[6] = (image.height and 0xFF).toByte()
-            command[7] = ((image.height shr 8) and 0xFF).toByte()
+        val offset = Actions.LEFT_MARGIN.size + Actions.PRINT_IMAGE.size
 
-            System.arraycopy(imageData, 0, command, 8, imageData.size)
-            return imageData
-        } catch (e: Throwable) {
-            println(e)
-            return byteArrayOf()
-        }
+        command[offset + 0] = (bytesPerRow and 0xFF).toByte()
+        command[offset + 1] = ((bytesPerRow shr 8) and 0xFF).toByte()
+        command[offset + 2] = (scaledImage.height and 0xFF).toByte()
+        command[offset + 3] = ((scaledImage.height shr 8) and 0xFF).toByte()
+        System.arraycopy(imageData, 0, command, offset + 4, imageData.size)
+
+        return command
     }
 
-    private fun convertImageToMonochrome(image: Bitmap, bytesPerRow: Int): ByteArray {
-        val imageData = ByteArray(bytesPerRow * image.height)
-        for (y in 0 until image.height) {
-            for (x in 0 until image.width) {
+    private fun convertToMonochrome(image: Bitmap, width: Int, height: Int, bytesPerRow: Int): ByteArray {
+        val imageData = ByteArray(bytesPerRow * height)
+
+        for (y in 0 until height) {
+            for (x in 0 until width) {
                 val pixel = image.getPixel(x, y)
-                val alpha = (pixel shr 24 and 0xFF)
+                val alpha = (pixel shr 24) and 0xFF
                 if (alpha < 128) {
                     continue
                 }
-                val luminance =
-                    (0.299 * (pixel shr 16 and 0xFF) + 0.587 * (pixel shr 8 and 0xFF) + 0.114 * (pixel and 0xFF)).toInt()
+                val luminance = (0.299 * (pixel shr 16 and 0xFF) + 0.587 * (pixel shr 8 and 0xFF) + 0.114 * (pixel and 0xFF)).toInt()
                 if (luminance < 128) {
-                    imageData[y * bytesPerRow + (x / 8)] =
-                        (imageData[y * bytesPerRow + (x / 8)].toInt() or (0x80 shr (x % 8))).toByte()
+                    imageData[y * bytesPerRow + (x / 8)] = (imageData[y * bytesPerRow + (x / 8)].toInt() or (0x80 shr (x % 8))).toByte()
                 }
             }
         }
+
         return imageData
     }
 

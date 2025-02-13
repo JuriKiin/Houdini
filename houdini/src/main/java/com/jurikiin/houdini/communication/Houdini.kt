@@ -8,6 +8,7 @@ import android.hardware.usb.UsbManager
 import com.jurikiin.houdini.actions.ImageRasterizer
 import com.jurikiin.houdini.model.ConnectionType
 import com.jurikiin.houdini.model.Printer
+import com.jurikiin.houdini.model.PrinterConfiguration
 import java.util.UUID
 
 @SuppressLint("MissingPermission")
@@ -57,6 +58,7 @@ class Houdini(
                 it.key,
                 it.value.deviceName,
                 ConnectionType.USB,
+                PrinterConfiguration.MM_80,
                 imageRasterizer,
                 null
             )
@@ -71,6 +73,7 @@ class Houdini(
                     printer.alias.toString(),
                     printer.address,
                     ConnectionType.BLUETOOTH,
+                    PrinterConfiguration.MM_80,
                     imageRasterizer,
                     bluetoothManager
                 )

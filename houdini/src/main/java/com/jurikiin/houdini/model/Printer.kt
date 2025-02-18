@@ -65,7 +65,9 @@ class Printer(
         socket = null
     }
 
-    fun setPaperSize(configuration: PrinterConfiguration) { printerConfiguration = configuration }
+    fun setPaperSize(configuration: PrinterConfiguration) {
+        printerConfiguration = configuration
+    }
 
     suspend fun cut(type: CutType) {
         withContext(Dispatchers.IO) {
@@ -118,4 +120,19 @@ class Printer(
             }
         }
     }
+
+    suspend fun getPrinterStatus(): PrinterStatus =
+        withContext(Dispatchers.IO) {
+            try {
+                socket?.let {
+                    return@withContext PrinterStatus.fromStatus(it)
+                } ?: run {
+                    Log.i("Houdini", "Failed to fetch devices status: Socket is null")
+                    return@withContext PrinterStatus(PrinterState.OFFLINE, PrinterMessage.OFFLINE)
+                }
+            } catch (e: Throwable) {
+                println("Get Printer Status Error: $e")
+                return@withContext PrinterStatus(PrinterState.ERROR, PrinterMessage.ERROR)
+            }
+        }
 }

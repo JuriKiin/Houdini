@@ -31,4 +31,19 @@ object Actions {
      * GS L 0 0 - Set the left margin to 0
      */
     val LEFT_MARGIN = byteArrayOf(0x1D, 0x4C, 0x00, 0x00)
+
+    /**
+     * DLE EOT n - Print the printer status
+     */
+    val PRINTER_STATUS = byteArrayOf(0x10, 0x04, 0x01)
+
+    /**
+     * DLE EOT 2 - Printer offline status
+     */
+    val PRINTER_OFFLINE_STATUS = byteArrayOf(0x10, 0x04, 0x02)
+
+    /**
+     * DLE EOT 3 - Printer error status
+     */
+    val PRINTER_ERROR_STATUS = byteArrayOf(0x10, 0x04, 0x03)
 }

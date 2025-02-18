@@ -15,6 +15,7 @@ import com.jurikiin.houdini.communication.HoudiniCommunicationHandler
 import com.jurikiin.houdini.model.CutType
 import com.jurikiin.houdini.model.Printer
 import com.jurikiin.houdini.model.PrinterConfiguration
+import com.jurikiin.houdini.model.PrinterStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -72,6 +73,11 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
         printer.printImage(image)
     }
 
+    fun getStatus(printer: Printer) = CoroutineScope(Dispatchers.IO).launch {
+        _state.postValue(MainViewModelState.PrinterResult(printer.getPrinterStatus()))
+        printer.getPrinterStatus()
+    }
+
     companion object {
         fun create(
             houdiniCommunicationHandler: HoudiniCommunicationHandler,
@@ -93,5 +99,6 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
 
 sealed class MainViewModelState {
     data class PrintersFound(val printers: List<Printer>) : MainViewModelState()
+    data class PrinterResult(val result: PrinterStatus) : MainViewModelState()
     data object Empty : MainViewModelState()
 }

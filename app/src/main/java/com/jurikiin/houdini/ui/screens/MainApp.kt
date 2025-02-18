@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.jurikiin.houdini.MainViewModel
 import com.jurikiin.houdini.MainViewModelState
@@ -38,6 +37,7 @@ fun MainApp(
 
                 is NavigationState.Action -> {
                     PrinterDetails(
+                        homeState,
                         navigationState.printer,
                         LocalContext.current.resources,
                         viewModel,

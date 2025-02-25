@@ -30,8 +30,6 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initializeHoudini()
-
         setContent {
             val homeState by mainViewModel.state.observeAsState(MainViewModelState.Empty)
             val loading by mainViewModel.loadingState.observeAsState(false)
@@ -49,9 +47,5 @@ class MainActivity : ComponentActivity(), HoudiniCommunicationHandler {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}.apply {
             launch(permissions.toTypedArray())
         }
-    }
-
-    override fun initializeHoudini() {
-        mainViewModel.initialize()
     }
 }

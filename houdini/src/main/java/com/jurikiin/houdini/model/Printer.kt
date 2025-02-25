@@ -98,8 +98,8 @@ class Printer(
                 val rasterizedImage = imageRasterizer.rasterize(image, configuration)
                 socket?.outputStream?.write(rasterizedImage)
 
-                socket?.outputStream?.write(Actions.FEED_LINES)
-                socket?.outputStream?.write(byteArrayOf(0x05))
+                feed(5)
+                cut(CutType.FULL)
 
                 socket?.outputStream?.flush()
             } catch (e: Throwable) {

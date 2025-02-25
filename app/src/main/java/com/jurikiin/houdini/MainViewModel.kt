@@ -29,7 +29,7 @@ class MainViewModel(private val houdini: Houdini) : ViewModel() {
     private val _loadingState = MutableLiveData(false)
     val loadingState: LiveData<Boolean> = _loadingState
 
-    fun initialize() {
+    init {
         houdini.initialize()
     }
 
